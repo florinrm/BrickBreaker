@@ -1,0 +1,35 @@
+﻿  CameraInput.cpp
+  SceneInput.cpp
+  SimpleScene.cpp
+  Engine.cpp
+  GPUBuffers.cpp
+  Mesh.cpp
+  Shader.cpp
+  Texture2D.cpp
+  TextureManager.cpp
+  InputController.cpp
+  WindowCallbacks.cpp
+  WindowObject.cpp
+  World.cpp
+  gl.cpp
+  Laborator1.cpp
+  Laborator2.cpp
+  Laborator3.cpp
+  Laborator3_Vis2D.cpp
+  Object2D.cpp
+  Laborator4.cpp
+d:\egc\teme\tema 1\framework-egc-master\source\laboratoare\laborator1\laborator1.cpp(51): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
+d:\egc\teme\tema 1\framework-egc-master\source\laboratoare\laborator2\laborator2.cpp(204): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+  Laborator5.cpp
+  Laborator6.cpp
+d:\egc\teme\tema 1\framework-egc-master\source\laboratoare\laborator3\laborator3.cpp(98): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+  Laborator7.cpp
+  Laborator8.cpp
+  Laborator9.cpp
+  Main.cpp
+  Framework_EGC.vcxproj -> D:\EGC\Teme\Tema 1\Framework-EGC-master\Visual Studio\..\x64\Debug\Framework_EGC.exe
+  A subdirectory or file D:\EGC\Teme\Tema 1\Framework-EGC-master\Visual Studio\scripts\..\..\x64\Debug already exists.
+  0 File(s) copied
+  0 File(s) copied
+  0 File(s) copied
+  0 File(s) copied
