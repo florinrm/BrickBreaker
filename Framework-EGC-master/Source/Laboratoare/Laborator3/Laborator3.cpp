@@ -46,7 +46,7 @@ void Laborator3::Init()
 	angularStep = 0;
 	
 
-	Mesh* square1 = Object2D::CreateSquare("square1", corner, squareSide, glm::vec3(1, 0, 0), true);
+	Mesh* square1 = Object2D::CreateSquare("square1", corner, squareSide, glm::vec3(1, 0.5f, 0), true);
 	AddMeshToList(square1);
 	
 	Mesh* square2 = Object2D::CreateSquare("square2", corner, squareSide, glm::vec3(0, 1, 0));

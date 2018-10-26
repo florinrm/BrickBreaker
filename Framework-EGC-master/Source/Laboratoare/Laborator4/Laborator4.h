@@ -29,5 +29,6 @@ class Laborator4 : public SimpleScene
 		float translateX, translateY, translateZ;
 		float scaleX, scaleY, scaleZ;
 		float angularStepOX, angularStepOY, angularStepOZ;
+		float sunAngle;
 		GLenum polygonMode;
 };
