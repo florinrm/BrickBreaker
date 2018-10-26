@@ -71,8 +71,9 @@ void Tema1::Init() {
 	AddMeshToList(brick);
 
 	Mesh* bricks[50];
+	blocksHit.resize(50, false);
 	for (int i = 0; i < 50; ++i) {
-		bricks[i] = Object2D::CreateRectangle("brick", corner, 50, 30, glm::vec3(1, 0, 0), true);
+		bricks[i] = Object2D::CreateRectangle("brick" + std::to_string(i), corner, 50, 30, glm::vec3(1, 0, 0), true);
 		AddMeshToList(bricks[i]);
 	}
 
@@ -142,12 +143,64 @@ void Tema1::Update(float deltaTimeSeconds) {
 		modelMatrix *= Transform2D::Translate(translateX, translateY);
 		RenderMesh2D(meshes["life3"], shaders["VertexColor"], modelMatrix);
 	}
-
+	/*
 	modelMatrix = glm::mat3(1);
-	modelMatrix *= Transform2D::Translate(200, 100);
+	modelMatrix *= Transform2D::Translate(200, 250);
 	rotation += deltaTimeSeconds;
 	modelMatrix *= Transform2D::Translate(translateX, translateY);
 	RenderMesh2D(meshes["brick"], shaders["VertexColor"], modelMatrix);
+	*/
+
+
+	for (int i = 0; i < 10; ++i) {
+		if (!blocksHit[i]) {
+			modelMatrix = glm::mat3(1);
+			modelMatrix *= Transform2D::Translate(250 + 80 * i, 270);
+			rotation += deltaTimeSeconds;
+			modelMatrix *= Transform2D::Translate(translateX, translateY);
+			RenderMesh2D(meshes["brick" + std::to_string(i)], shaders["VertexColor"], modelMatrix);
+		}
+	}
+
+	for (int i = 10; i < 20; ++i) {
+		if (!blocksHit[i]) {
+			modelMatrix = glm::mat3(1);
+			modelMatrix *= Transform2D::Translate(250 + 80 * (i - 10), 330);
+			rotation += deltaTimeSeconds;
+			modelMatrix *= Transform2D::Translate(translateX, translateY);
+			RenderMesh2D(meshes["brick" + std::to_string(i)], shaders["VertexColor"], modelMatrix);
+		}
+	}
+
+	for (int i = 20; i < 30; ++i) {
+		if (!blocksHit[i]) {
+			modelMatrix = glm::mat3(1);
+			modelMatrix *= Transform2D::Translate(250 + 80 * (i - 20), 390);
+			rotation += deltaTimeSeconds;
+			modelMatrix *= Transform2D::Translate(translateX, translateY);
+			RenderMesh2D(meshes["brick" + std::to_string(i)], shaders["VertexColor"], modelMatrix);
+		}
+	}
+
+	for (int i = 30; i < 40; ++i) {
+		if (!blocksHit[i]) {
+			modelMatrix = glm::mat3(1);
+			modelMatrix *= Transform2D::Translate(250 + 80 * (i - 30), 450);
+			rotation += deltaTimeSeconds;
+			modelMatrix *= Transform2D::Translate(translateX, translateY);
+			RenderMesh2D(meshes["brick" + std::to_string(i)], shaders["VertexColor"], modelMatrix);
+		}
+	}
+
+	for (int i = 40; i < 50; ++i) {
+		if (!blocksHit[i]) {
+			modelMatrix = glm::mat3(1);
+			modelMatrix *= Transform2D::Translate(250 + 80 * (i - 40), 510);
+			rotation += deltaTimeSeconds;
+			modelMatrix *= Transform2D::Translate(translateX, translateY);
+			RenderMesh2D(meshes["brick" + std::to_string(i)], shaders["VertexColor"], modelMatrix);
+		}
+	}
 }
 void Tema1::FrameEnd() {
 
