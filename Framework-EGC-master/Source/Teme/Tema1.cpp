@@ -116,20 +116,70 @@ void Tema1::Update(float deltaTimeSeconds) {
 	RenderMesh2D(meshes["platform"], shaders["VertexColor"], modelMatrix);
 
 	if (hasGameBegun) {
-		if (bounce == false) {
+		//justStarted = false;
+		if (bounceBottom == false && !bounceLeft && !bounceRight) {
+			if (initialBallPosY < 58.6) {
+				bouncePlatformX = initialBallPosX;
+				pula = mouseMoveOX;
+			}
 			initialBallPosY += 200 * deltaTimeSeconds;
+			float distance = platformX + pula + platformLength - bouncePlatformX;
+			initialBallPosX += deltaTimeSeconds * 150 * cos(M_PI * distance / platformLength);
+
 			if (initialBallPosY > 650)
-				bounce = true;
-		}
-		else if (bounce == true) {
+				bounceBottom = true;
+			
+			if (initialBallPosX > 1220)
+				bounceRight = true;
+			
+			if (initialBallPosX < 75)
+				bounceLeft = true;
+
+		} else if (bounceBottom == true && !bounceRight && !bounceLeft) {
 			initialBallPosY -= deltaTimeSeconds * 200;
-			if (initialBallPosY < 58.5)
-				bounce = false;
+			float distance = platformX + pula + platformLength - bouncePlatformX;
+			initialBallPosX += deltaTimeSeconds * 150 * cos(M_PI * distance / platformLength);
+			if (initialBallPosY < 58.5) {
+				bounceBottom = false;
+			}
+			if (initialBallPosX > 1220)
+				bounceRight = true;
+
+			if (initialBallPosX < 60)
+				bounceLeft = true;
+		}
+		else if (bounceLeft) {
+			if (bounceBottom)
+				initialBallPosY -= deltaTimeSeconds * 200;
+			else
+				initialBallPosY += deltaTimeSeconds * 200;
+			float distance = platformX + pula + platformLength - bouncePlatformX;
+			initialBallPosX -= deltaTimeSeconds * 150 * cos(M_PI * distance / platformLength);
+			if (initialBallPosY < 58.5) {
+				bounceLeft = false;
+			} 
+			if (initialBallPosY > 650)
+				bounceBottom = true;
+		}
+		else if (bounceRight) {
+			if (bounceBottom)
+				initialBallPosY -= deltaTimeSeconds * 200;
+			else
+				initialBallPosY += deltaTimeSeconds * 200;
+			float distance = platformX + pula + platformLength - bouncePlatformX;
+			initialBallPosX -= deltaTimeSeconds * 150 * cos(M_PI * distance / platformLength);
+			if (initialBallPosY < 58.5) {
+				bounceRight = false;
+			}
+			if (initialBallPosY > 650)
+				bounceBottom = true;
 		}
 	}
 
-	if (hasGameBegun && ((initialBallPosX < platformX + mouseMoveOX) || (initialBallPosX > platformX + mouseMoveOX + 160)) && initialBallPosY < 58.5) {
+	if (hasGameBegun && ((initialBallPosX < platformX + mouseMoveOX) 
+		|| (initialBallPosX > platformX + mouseMoveOX + 160)) && initialBallPosY < 58.5) {
 		hasGameBegun = false;
+		justStarted = true;
 		player.decreaseLives();
 		if (player.getLives() == 0)
 			player.setLives(3);
@@ -141,6 +191,9 @@ void Tema1::Update(float deltaTimeSeconds) {
 		initialBallPosX = 680 + mouseMoveOX;
 	}
 	else {
+		//float distance = platformX + mouseMoveOX + platformLength - bouncePlatformX;
+		//std::cout << distance << std::endl;
+		//initialBallPosX += deltaTimeSeconds * (M_PI * distance / platformLength);
 		modelMatrix *= Transform2D::Translate(initialBallPosX, initialBallPosY); /*
 		if (!bounce)
 			initialBallPosY += 200 * deltaTimeSeconds;

@@ -45,14 +45,22 @@ protected:
 
 	const float platformX = 600, platformY = 30;
 	const float brickLength = 50, brickHeight = 30;
+	const float platformLength = 160, platformHeight = 15;
 
 	bool hasGameBegun = false;
 	bool lostLife = false;
 
-	float initialBallPosX = 0;
+	float initialBallPosX = 680 + mouseMoveOX;
 	float initialBallPosY = 58.5;
 
-	bool hasHitSomething = false;
-	bool bounce = false;
-	bool justStarted = false;
+	bool bounceBottom = false;
+	bool bounceLeft = false;
+	bool bounceRight = false;
+
+	bool justStarted = true;
+	bool isBallSticky = false;
+	bool hitPlatform = false;
+
+	float bouncePlatformX = 0;
+	float pula = 0;
 };
