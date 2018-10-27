@@ -7,3 +7,7 @@ void Player::decreaseLives() {
 int Player::getLives() {
 	return lives;
 }
+
+void Player::setLives(int n) {
+	lives = n;
+}

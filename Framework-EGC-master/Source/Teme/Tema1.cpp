@@ -52,7 +52,7 @@ void Tema1::Init() {
 	Mesh* square3 = Object2D::CreateRectangle("bottom", corner, squareSide * 2 / 4, resolution.y, glm::vec3(1, 0, 0), true);
 	AddMeshToList(square3);
 
-	Mesh* platform = Object2D::CreateRectangle("platform", corner, 100, 15, glm::vec3(0, 1, 0), true);
+	Mesh* platform = Object2D::CreateRectangle("platform", corner, 160, 15, glm::vec3(0, 1, 0), true);
 	AddMeshToList(platform);
 
 	Mesh* life1 = Object2D::CreateCircle("life1", corner, 360, glm::vec3(1, 1, 1));
@@ -73,11 +73,12 @@ void Tema1::Init() {
 	Mesh* bricks[50];
 	blocksHit.resize(50, false);
 	for (int i = 0; i < 50; ++i) {
-		bricks[i] = Object2D::CreateRectangle("brick" + std::to_string(i), corner, 50, 30, glm::vec3(1, 0, 0), true);
+		bricks[i] = Object2D::CreateRectangle("brick" + std::to_string(i), corner, brickLength, brickHeight, glm::vec3(1, 0, 0), true);
 		AddMeshToList(bricks[i]);
 	}
 
 	player = Player();
+	brickStatus.resize(50, 0);
 }
 
 void Tema1::FrameStart() {
@@ -109,13 +110,44 @@ void Tema1::Update(float deltaTimeSeconds) {
 	RenderMesh2D(meshes["bottom"], shaders["VertexColor"], modelMatrix);
 
 	modelMatrix = glm::mat3(1);
-	modelMatrix *= Transform2D::Translate(600 + mouseMoveOX, 30);
+	modelMatrix *= Transform2D::Translate(platformX + mouseMoveOX, platformY);
 	rotation += deltaTimeSeconds;
 	modelMatrix *= Transform2D::Translate(translateX, translateY);
 	RenderMesh2D(meshes["platform"], shaders["VertexColor"], modelMatrix);
 
+	if (hasGameBegun) {
+		if (bounce == false) {
+			initialBallPosY += 200 * deltaTimeSeconds;
+			if (initialBallPosY > 650)
+				bounce = true;
+		}
+		else if (bounce == true) {
+			initialBallPosY -= deltaTimeSeconds * 200;
+			if (initialBallPosY < 58.5)
+				bounce = false;
+		}
+	}
+
+	if (hasGameBegun && ((initialBallPosX < platformX + mouseMoveOX) || (initialBallPosX > platformX + mouseMoveOX + 160)) && initialBallPosY < 58.5) {
+		hasGameBegun = false;
+		player.decreaseLives();
+		if (player.getLives() == 0)
+			player.setLives(3);
+	}
+
 	modelMatrix = glm::mat3(1);
-	modelMatrix *= Transform2D::Translate(650 + mouseMoveOX, 58.5);
+	if (!hasGameBegun) {
+		modelMatrix *= Transform2D::Translate(680 + mouseMoveOX, initialBallPosY);
+		initialBallPosX = 680 + mouseMoveOX;
+	}
+	else {
+		modelMatrix *= Transform2D::Translate(initialBallPosX, initialBallPosY); /*
+		if (!bounce)
+			initialBallPosY += 200 * deltaTimeSeconds;
+		else
+			initialBallPosY -= 200 * deltaTimeSeconds; */
+		//std::cout << initialBallPosY << std::endl;
+	}
 	modelMatrix *= Transform2D::Scale(13, 13);
 	modelMatrix *= Transform2D::Translate(translateX, translateY);
 	RenderMesh2D(meshes["ball"], shaders["VertexColor"], modelMatrix);
@@ -143,6 +175,7 @@ void Tema1::Update(float deltaTimeSeconds) {
 		modelMatrix *= Transform2D::Translate(translateX, translateY);
 		RenderMesh2D(meshes["life3"], shaders["VertexColor"], modelMatrix);
 	}
+
 	/*
 	modelMatrix = glm::mat3(1);
 	modelMatrix *= Transform2D::Translate(200, 250);
@@ -151,12 +184,16 @@ void Tema1::Update(float deltaTimeSeconds) {
 	RenderMesh2D(meshes["brick"], shaders["VertexColor"], modelMatrix);
 	*/
 
-
 	for (int i = 0; i < 10; ++i) {
-		if (!blocksHit[i]) {
+		if (!blocksHit[i] && brickStatus[i] == blockNotHit) {
 			modelMatrix = glm::mat3(1);
 			modelMatrix *= Transform2D::Translate(250 + 80 * i, 270);
-			rotation += deltaTimeSeconds;
+			modelMatrix *= Transform2D::Translate(translateX, translateY);
+			RenderMesh2D(meshes["brick" + std::to_string(i)], shaders["VertexColor"], modelMatrix);
+		}
+		else if (!blocksHit[i] && brickStatus[i] == blockBeingHit) {
+			modelMatrix = glm::mat3(1);
+			modelMatrix *= Transform2D::Translate(250 + 80 * i, 270);
 			modelMatrix *= Transform2D::Translate(translateX, translateY);
 			RenderMesh2D(meshes["brick" + std::to_string(i)], shaders["VertexColor"], modelMatrix);
 		}
@@ -166,7 +203,6 @@ void Tema1::Update(float deltaTimeSeconds) {
 		if (!blocksHit[i]) {
 			modelMatrix = glm::mat3(1);
 			modelMatrix *= Transform2D::Translate(250 + 80 * (i - 10), 330);
-			rotation += deltaTimeSeconds;
 			modelMatrix *= Transform2D::Translate(translateX, translateY);
 			RenderMesh2D(meshes["brick" + std::to_string(i)], shaders["VertexColor"], modelMatrix);
 		}
@@ -176,7 +212,6 @@ void Tema1::Update(float deltaTimeSeconds) {
 		if (!blocksHit[i]) {
 			modelMatrix = glm::mat3(1);
 			modelMatrix *= Transform2D::Translate(250 + 80 * (i - 20), 390);
-			rotation += deltaTimeSeconds;
 			modelMatrix *= Transform2D::Translate(translateX, translateY);
 			RenderMesh2D(meshes["brick" + std::to_string(i)], shaders["VertexColor"], modelMatrix);
 		}
@@ -186,7 +221,6 @@ void Tema1::Update(float deltaTimeSeconds) {
 		if (!blocksHit[i]) {
 			modelMatrix = glm::mat3(1);
 			modelMatrix *= Transform2D::Translate(250 + 80 * (i - 30), 450);
-			rotation += deltaTimeSeconds;
 			modelMatrix *= Transform2D::Translate(translateX, translateY);
 			RenderMesh2D(meshes["brick" + std::to_string(i)], shaders["VertexColor"], modelMatrix);
 		}
@@ -196,7 +230,6 @@ void Tema1::Update(float deltaTimeSeconds) {
 		if (!blocksHit[i]) {
 			modelMatrix = glm::mat3(1);
 			modelMatrix *= Transform2D::Translate(250 + 80 * (i - 40), 510);
-			rotation += deltaTimeSeconds;
 			modelMatrix *= Transform2D::Translate(translateX, translateY);
 			RenderMesh2D(meshes["brick" + std::to_string(i)], shaders["VertexColor"], modelMatrix);
 		}
@@ -222,7 +255,13 @@ void Tema1::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY) {
 	mouseMoveOX += deltaX;
 }
 void Tema1::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods) {
-
+	if (!hasGameBegun) {
+		hasGameBegun = true;
+	}
+	else if (hasGameBegun && player.getLives() == 0) {
+		hasGameBegun = false;
+	}
+	std::cout << "muie muie" << std::endl;
 }
 void Tema1::OnMouseBtnRelease(int mouseX, int mouseY, int button, int mods) {
 

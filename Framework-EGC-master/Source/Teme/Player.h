@@ -8,4 +8,5 @@ class Player {
 	public:
 		int getLives();
 		void decreaseLives();
+		void setLives(int n);
 };
