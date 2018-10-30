@@ -26,6 +26,14 @@ private:
 	void OnMouseBtnRelease(int mouseX, int mouseY, int button, int mods) override;
 	void OnMouseScroll(int mouseX, int mouseY, int offsetX, int offsetY) override;
 
+	bool AllBricksDissappeared() {
+		for (int i = 0; i < 50; ++i) {
+			if (!blocksHit[i])
+				return false;
+		}
+		return true;
+	}
+
 protected:
 	glm::mat3 modelMatrix;
 	float translateX, translateY;
@@ -53,9 +61,10 @@ protected:
 	float initialBallPosX = 680 + mouseMoveOX;
 	float initialBallPosY = 58.5;
 
-	bool bounceBottom = false;
+	bool bounceTop = false;
 	bool bounceLeft = false;
 	bool bounceRight = false;
+	bool bounceBottom = true; // for bricks
 
 	bool justStarted = true;
 	bool isBallSticky = false;
@@ -63,4 +72,8 @@ protected:
 
 	float bouncePlatformX = 0;
 	float pula = 0;
+
+	std::vector<float> scaleTimes;
+
+	bool hasBallHitABrick = false; // if a ball has hit a brick
 };
