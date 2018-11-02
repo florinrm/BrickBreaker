@@ -50,24 +50,17 @@ protected:
 	Player player;
 	float mouseMoveOX = 0; // mouse moving
 	std::vector<bool> blocksHit;
-	std::vector<int> brickStatus;
 
 	const float platformX = 600, platformY = 30;
 	const float brickLength = 50, brickHeight = 30;
 	const float platformLength = 160, platformHeight = 15;
 
 	bool hasGameBegun = false;
-	bool lostLife = false;
 
 	float initialBallPosX = 680 + mouseMoveOX;
 	float initialBallPosY = 58.5;
 
-	bool justStarted = true;
-	bool isBallSticky = false;
-	bool hitPlatform = false;
+	std::vector<float> scaling;
 
-	float bouncePlatformX = 0;
-	float pula = 0;
-
-	std::vector<float> scaleTimes;
+	bool savingWall = true;
 };
