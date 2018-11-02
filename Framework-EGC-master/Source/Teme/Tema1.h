@@ -45,13 +45,11 @@ protected:
 	float rotation = 0;
 
 	int signX = 1, signY = 1;
+	float angle = M_PI / 2;
 
 	Player player;
 	float mouseMoveOX = 0; // mouse moving
 	std::vector<bool> blocksHit;
-	const int blockHit = 2;
-	const int blockBeingHit = 1;
-	const int blockNotHit = 0;
 	std::vector<int> brickStatus;
 
 	const float platformX = 600, platformY = 30;
@@ -64,11 +62,6 @@ protected:
 	float initialBallPosX = 680 + mouseMoveOX;
 	float initialBallPosY = 58.5;
 
-	bool bounceTop = false;
-	bool bounceLeft = false;
-	bool bounceRight = false;
-	bool bounceBottom = true; // for bricks
-
 	bool justStarted = true;
 	bool isBallSticky = false;
 	bool hitPlatform = false;
@@ -77,6 +70,4 @@ protected:
 	float pula = 0;
 
 	std::vector<float> scaleTimes;
-
-	bool hasBallHitABrick = false; // if a ball has hit a brick
 };

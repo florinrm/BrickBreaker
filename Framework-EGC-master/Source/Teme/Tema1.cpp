@@ -116,122 +116,55 @@ void Tema1::Update(float deltaTimeSeconds) {
 	modelMatrix *= Transform2D::Translate(translateX, translateY);
 	RenderMesh2D(meshes["platform"], shaders["VertexColor"], modelMatrix);
 
-	if (bounceTop)
-		std::cout << "Ayy" << std::endl;
-	else
-		std::cout << "Nee" << std::endl;
-
 	// collisions with walls
 	if (hasGameBegun) {
-		std::cout << initialBallPosX << '\n';
-		if (!bounceTop && !bounceLeft && !bounceRight) {
-			if (initialBallPosY < 58.6) {
-				bouncePlatformX = initialBallPosX;
-				pula = mouseMoveOX;
-				bounceBottom = true;
-			}
-			initialBallPosY += 200 * deltaTimeSeconds;
-			float distance = platformX + pula + platformLength - bouncePlatformX;
-			initialBallPosX += deltaTimeSeconds * 150 * cos(M_PI * distance / platformLength);
-
-			if (initialBallPosY > 650) {
-				bounceTop = true;
-				bounceBottom = false;
-			}
-
-			if (initialBallPosX > 1220)
-				bounceRight = true;
-
-			if (initialBallPosX < 75)
-				bounceLeft = true;
-
+		if ((initialBallPosX >= platformX + mouseMoveOX)
+			&& (initialBallPosX <= platformX + mouseMoveOX + 160) && initialBallPosY < 58.6 && signY == -1) {
+			
+			signY *= -1;
+			float distance = platformX + mouseMoveOX + platformLength - initialBallPosX;
+			angle = M_PI * distance / platformLength;
+			if (signX == -1)
+				signX = 1;
 		}
-		else if (bounceTop == true && !bounceRight && !bounceLeft) {
-			initialBallPosY -= deltaTimeSeconds * 200;
-			float distance = platformX + pula + platformLength - bouncePlatformX;
-			initialBallPosX += deltaTimeSeconds * 150 * cos(M_PI * distance / platformLength);
-			if (initialBallPosY < 58.6) {
-				bounceTop = false;
-				bounceBottom = true;
-			}
-			if (initialBallPosX > 1220)
-				bounceRight = true;
-
-			if (initialBallPosX < 60)
-				bounceLeft = true;
+		if ((initialBallPosY > 650) && (signY == 1)) {
+			signY *= -1;
 		}
-		else if (bounceLeft) {
-			bounceRight = false;
-			if (initialBallPosX > 1220) {
-				bounceRight = true;
-				bounceLeft = false;
-			}
-			std::cout << "fac sex anal pe bani" << std::endl;
-			if (bounceTop) {
-				initialBallPosY -= deltaTimeSeconds * 200;
-				std::cout << "vreau sa o fut pe scufita rosie" << std::endl;
-			}
-			else {
-				initialBallPosY += deltaTimeSeconds * 200;
-			}
-			float distance = platformX + pula + platformLength - bouncePlatformX;
-			initialBallPosX -= deltaTimeSeconds * 150 * cos(M_PI * distance / platformLength);
-			if (initialBallPosY < 58.5) {
-				bounceLeft = false;
-			}
-			if (initialBallPosY > 650)
-				bounceTop = true;
+		if ((initialBallPosX > 1220) && (signX * cos(angle)) > 0 && (initialBallPosY > 60)) {
+			signX *= -1;
 		}
-		else if (bounceRight) {
-			bounceLeft = false;
-			if (initialBallPosX < 75) {
-				bounceRight = false;
-				bounceLeft = true;
-			}
-			std::cout << "sug pula pe bani" << std::endl;
-			if (bounceTop) {
-				initialBallPosY -= deltaTimeSeconds * 200;
-				std::cout << "vreau sa o fut pe anky" << std::endl;
-			}
-			else {
-				initialBallPosY += deltaTimeSeconds * 200;
-			}
-			float distance = platformX + pula + platformLength - bouncePlatformX;
-			initialBallPosX -= deltaTimeSeconds * 150 * cos(M_PI * distance / platformLength);
-			if (initialBallPosY < 58.5) {
-				bounceRight = false;
-			}
-			if (initialBallPosY > 650)
-				bounceTop = true;
-		} /*
-		if (bounceBottom) { 
-			initialBallPosY += deltaTimeSeconds * 200;
-			float distance = platformX + pula + platformLength - bouncePlatformX;
-			initialBallPosX += deltaTimeSeconds * 150 * cos(M_PI * distance / platformLength);
-			if (initialBallPosY > 650) {
-				bounceTop = true;
-				bounceBottom = false;
-			}
-			if (initialBallPosX > 1220)
-				bounceRight = true;
-
-			if (initialBallPosX < 60)
-				bounceLeft = true;
-		} */
+		if ((initialBallPosX < 60) && (signX * cos(angle)) < 0 && (initialBallPosY > 60)) {
+			signX *= -1;
+		}
+		std::cout << signX << std::endl;
+		initialBallPosY += signY * 200 * deltaTimeSeconds;
+		initialBallPosX += signX * 200 * deltaTimeSeconds * cos(angle);
 	}
 
 	if (hasGameBegun && ((initialBallPosX < platformX + mouseMoveOX) 
 		|| (initialBallPosX > platformX + mouseMoveOX + 160)) && initialBallPosY < 58.5) {
 		hasGameBegun = false;
-		justStarted = true;
 		player.decreaseLives();
-		if (player.getLives() > 0 && AllBricksDissappeared()) {
+		if ((player.getLives() == 0)) {
+			signX = 1;
+			signY = 1;
+			initialBallPosX = 680 + mouseMoveOX;
+			initialBallPosY = 58.7;
 			player.setLives(3);
+			hasGameBegun = false;
 			for (int i = 0; i < 50; ++i)
 				blocksHit[i] = false;
 		}
-		if (player.getLives() == 0) {
+	}
+
+	if (hasGameBegun) {
+		if ((player.getLives() > 0 && AllBricksDissappeared())) {
+			signX = 1;
+			signY = 1;
+			initialBallPosX = 680 + mouseMoveOX;
+			initialBallPosY = 58.7;
 			player.setLives(3);
+			hasGameBegun = false;
 			for (int i = 0; i < 50; ++i)
 				blocksHit[i] = false;
 		}
@@ -282,34 +215,17 @@ void Tema1::Update(float deltaTimeSeconds) {
 		} 
 		
 		if (hasGameBegun) {
-			if (initialBallPosX >= (250  + 80 * i) && initialBallPosX <= (250 + 80 * i + brickLength) && initialBallPosY >= 270 
-					&& initialBallPosY <= 270 + brickHeight && !blocksHit[i]) {
-				modelMatrix = glm::mat3(1);
-				modelMatrix *= Transform2D::Translate(250 + 80 * i, 270);
-				modelMatrix *= Transform2D::Translate(translateX, translateY);
-				RenderMesh2D(meshes["brick" + std::to_string(i)], shaders["VertexColor"], modelMatrix);
-
-				for (int j = 10; j > -1; --j) {
-					modelMatrix = glm::mat3(1);
-					modelMatrix *= Transform2D::Translate(250 + 80 * i, 270);
-					modelMatrix *= Transform2D::Scale(j, j);
-					modelMatrix *= Transform2D::Translate(translateX, translateY);
-					RenderMesh2D(meshes["brick" + std::to_string(i)], shaders["VertexColor"], modelMatrix);
+			if (!blocksHit[i]) {
+				if (initialBallPosX >= (250 + 80 * i) && initialBallPosX <= (250 + 80 * i + brickLength) && 
+						(fabs(initialBallPosY - 270) < 3 || fabs(initialBallPosY - 270 - brickHeight) < 3)) {
+					blocksHit[i] = true;
+					signY *= -1;
 				}
 
-				blocksHit[i] = true;
-				if (!bounceTop) {
-					bounceTop = true;
-				} else if (bounceTop) {
-					bounceTop = false;
-				}
-				if (bounceLeft) {
-					bounceRight = true;
-					//bounceLeft = false;
-				} else
-				if (bounceRight) {
-					bounceLeft = true;
-					//bounceRight = false;
+				if (initialBallPosY >= 270 && initialBallPosY <= 270 + brickHeight 
+						&& (fabs(initialBallPosX - (250 + 80 * i)) < 3 || fabs(initialBallPosX - (250 + 80 * i + brickLength)) < 3)) {
+					blocksHit[i] = true;
+					signX *= -1;
 				}
 			}
 		}
@@ -323,22 +239,17 @@ void Tema1::Update(float deltaTimeSeconds) {
 			RenderMesh2D(meshes["brick" + std::to_string(i)], shaders["VertexColor"], modelMatrix);
 		}
 		if (hasGameBegun) {
-			if (initialBallPosX >= (250 + 80 * (i - 10)) && initialBallPosX <= (250 + 80 * (i - 10) + brickLength)
-				&& initialBallPosY >= 330 && initialBallPosY <= 330 + brickHeight && !blocksHit[i]) {
-				blocksHit[i] = true;
-				if (!bounceTop) {
-					bounceTop = true;
+			if (!blocksHit[i]) {
+				if (initialBallPosX >= (250 + 80 * (i - 10)) && initialBallPosX <= (250 + 80 * (i - 10) + brickLength) &&
+					(fabs(initialBallPosY - 330) < 3 || fabs(initialBallPosY - 330 - brickHeight) < 3)) {
+					blocksHit[i] = true;
+					signY *= -1;
 				}
-				else if (bounceTop) {
-					bounceTop = false;
-				}
-				if (bounceLeft) {
-					bounceRight = true;
-					//bounceLeft = false;
-				} else
-				if (bounceRight) {
-					bounceLeft = true;
-					//bounceRight = false;
+
+				if (initialBallPosY >= 330 && initialBallPosY <= 330 + brickHeight
+					&& (fabs(initialBallPosX - (250 + 80 * (i - 10))) < 3 || fabs(initialBallPosX - (250 + 80 * (i - 10) + brickLength)) < 3)) {
+					blocksHit[i] = true;
+					signX *= -1;
 				}
 			}
 		}
@@ -352,22 +263,17 @@ void Tema1::Update(float deltaTimeSeconds) {
 			RenderMesh2D(meshes["brick" + std::to_string(i)], shaders["VertexColor"], modelMatrix);
 		}
 		if (hasGameBegun) {
-			if (initialBallPosX >= (250 + 80 * (i - 20)) && initialBallPosX <= (250 + 80 * (i - 20) + brickLength)
-				&& initialBallPosY >= 390 && initialBallPosY <= 390 + brickHeight && !blocksHit[i]) {
-				blocksHit[i] = true;
-				if (!bounceTop) {
-					bounceTop = true;
+			if (!blocksHit[i]) {
+				if (initialBallPosX >= (250 + 80 * (i - 20)) && initialBallPosX <= (250 + 80 * (i - 20) + brickLength) &&
+					(fabs(initialBallPosY - 390) < 3 || fabs(initialBallPosY - 390 - brickHeight) < 3)) {
+					blocksHit[i] = true;
+					signY *= -1;
 				}
-				else if (bounceTop) {
-					bounceTop = false;
-				}
-				if (bounceLeft) {
-					bounceRight = true;
-					//bounceLeft = false;
-				} else
-				if (bounceRight) {
-					bounceLeft = true;
-					//bounceRight = false;
+
+				if (initialBallPosY >= 390 && initialBallPosY <= 390 + brickHeight
+					&& (fabs(initialBallPosX - (250 + 80 * (i - 20))) < 3 || fabs(initialBallPosX - (250 + 80 * (i - 20) + brickLength)) < 3)) {
+					blocksHit[i] = true;
+					signX *= -1;
 				}
 			}
 		}
@@ -381,22 +287,17 @@ void Tema1::Update(float deltaTimeSeconds) {
 			RenderMesh2D(meshes["brick" + std::to_string(i)], shaders["VertexColor"], modelMatrix);
 		}
 		if (hasGameBegun) {
-			if (initialBallPosX >= (250 + 80 * (i - 30)) && initialBallPosX <= (250 + 80 * (i - 30) + brickLength)
-				&& initialBallPosY >= 450 && initialBallPosY <= 450 + brickHeight && !blocksHit[i]) {
-				blocksHit[i] = true;
-				if (!bounceTop) {
-					bounceTop = true;
+			if (!blocksHit[i]) {
+				if (initialBallPosX >= (250 + 80 * (i - 30)) && initialBallPosX <= (250 + 80 * (i - 30) + brickLength) &&
+					(fabs(initialBallPosY - 450) < 3 || fabs(initialBallPosY - 450 - brickHeight) < 3)) {
+					blocksHit[i] = true;
+					signY *= -1;
 				}
-				else if (bounceTop) {
-					bounceTop = false;
-				}
-				if (bounceLeft) {
-					bounceRight = true;
-					//bounceLeft = false;
-				} else
-				if (bounceRight) {
-					bounceLeft = true;
-					//bounceRight = false;
+
+				if (initialBallPosY >= 450 && initialBallPosY <= 450 + brickHeight
+					&& (fabs(initialBallPosX - (250 + 80 * (i - 30))) < 3 || fabs(initialBallPosX - (250 + 80 * (i - 30) + brickLength)) < 3)) {
+					blocksHit[i] = true;
+					signX *= -1;
 				}
 			}
 		}
@@ -410,22 +311,17 @@ void Tema1::Update(float deltaTimeSeconds) {
 			RenderMesh2D(meshes["brick" + std::to_string(i)], shaders["VertexColor"], modelMatrix);
 		}
 		if (hasGameBegun) {
-			if (initialBallPosX >= (250 + 80 * (i - 40)) && initialBallPosX <= (250 + 80 * (i - 40) + brickLength)
-				&& initialBallPosY >= 510 && initialBallPosY <= 510 + brickHeight && !blocksHit[i]) {
-				blocksHit[i] = true;
-				if (!bounceTop) {
-					bounceTop = true;
+			if (!blocksHit[i]) {
+				if (initialBallPosX >= (250 + 80 * (i - 40)) && initialBallPosX <= (250 + 80 * (i - 40) + brickLength) &&
+					(fabs(initialBallPosY - 510) < 3 || fabs(initialBallPosY - 510 - brickHeight) < 3)) {
+					blocksHit[i] = true;
+					signY *= -1;
 				}
-				else if (bounceTop) {
-					bounceTop = false;
-				}
-				if (bounceLeft) {
-					bounceRight = true;
-					//bounceLeft = false;
-				} else
-				if (bounceRight) {
-					bounceLeft = true;
-					//bounceRight = false;
+
+				if (initialBallPosY >= 510 && initialBallPosY <= 510 + brickHeight
+					&& (fabs(initialBallPosX - (250 + 80 * (i - 40))) < 3 || fabs(initialBallPosX - (250 + 80 * (i - 40) + brickLength)) < 3)) {
+					blocksHit[i] = true;
+					signX *= -1;
 				}
 			}
 		}
