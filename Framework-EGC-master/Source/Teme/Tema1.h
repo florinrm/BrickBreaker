@@ -43,6 +43,9 @@ protected:
 	bool ok;
 	bool direction;
 	float rotation = 0;
+
+	int signX = 1, signY = 1;
+
 	Player player;
 	float mouseMoveOX = 0; // mouse moving
 	std::vector<bool> blocksHit;
