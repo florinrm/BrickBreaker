@@ -178,14 +178,14 @@ void Tema1::Update(float deltaTimeSeconds) {
 		if ((player.getLives() == 0)) {
 			player.setLives(3);
 			hasGameBegun = false;
-			solidBricks.insert(std::make_pair(4, 0));
-			solidBricks.insert(std::make_pair(42, 0));
-			solidBricks.insert(std::make_pair(24, 0));
-			solidBricks.insert(std::make_pair(30, 0));
-			solidBricks.insert(std::make_pair(17, 0));
+			solidBricks[4] = 0;
+			solidBricks[42] = 0;
+			solidBricks[24] = 0;
+			solidBricks[30] = 0;
+			solidBricks[17] = 0;
 			for (int i = 0; i < 50; ++i) {
 				blocksHit[i] = false;
-				scaling[i] = false;
+				scaling[i] = 1.f;
 			}
 		}
 	}
@@ -199,11 +199,11 @@ void Tema1::Update(float deltaTimeSeconds) {
 			initialBallPosX = 680 + mouseMoveOX;
 			initialBallPosY = 58.7;
 			player.setLives(3);
-			solidBricks.insert(std::make_pair(4, 0));
-			solidBricks.insert(std::make_pair(42, 0));
-			solidBricks.insert(std::make_pair(24, 0));
-			solidBricks.insert(std::make_pair(30, 0));
-			solidBricks.insert(std::make_pair(17, 0));
+			solidBricks[4] = 0;
+			solidBricks[42] = 0;
+			solidBricks[24] = 0;
+			solidBricks[30] = 0;
+			solidBricks[17] = 0;
 			hasGameBegun = false;
 			for (int i = 0; i < 50; ++i) {
 				blocksHit[i] = false;
@@ -300,7 +300,7 @@ void Tema1::Update(float deltaTimeSeconds) {
 
 	// time for power up #2
 	if (noBrickReflection) {
-		if (powerUpTime2 < 15.f)
+		if (powerUpTime2 < 30.f)
 			powerUpTime2 += deltaTimeSeconds;
 		else {
 			noBrickReflection = false;
@@ -325,7 +325,7 @@ void Tema1::Update(float deltaTimeSeconds) {
 					}
 					if (i != 4)
 						blocksHit[i] = true;
-					else if (i == 4 && solidBricks[i] == 3)
+					if (i == 4 && solidBricks[i] == 3)
 						blocksHit[i] = true;
 					if (i == 4 && noBrickReflection)
 						blocksHit[i] = true;
@@ -340,7 +340,7 @@ void Tema1::Update(float deltaTimeSeconds) {
 					}
 					if (i != 4)
 						blocksHit[i] = true;
-					else if (i == 4 && solidBricks[i] == 3)
+					if (i == 4 && solidBricks[i] == 3)
 						blocksHit[i] = true;
 					if (i == 4 && noBrickReflection)
 						blocksHit[i] = true;
@@ -378,7 +378,7 @@ void Tema1::Update(float deltaTimeSeconds) {
 					}
 					if (i != 17)
 						blocksHit[i] = true;
-					else if (i == 17 && solidBricks[i] == 3)
+					if (i == 17 && solidBricks[i] == 3)
 						blocksHit[i] = true;
 					if (i == 17 && noBrickReflection)
 						blocksHit[i] = true;
@@ -394,7 +394,7 @@ void Tema1::Update(float deltaTimeSeconds) {
 					}
 					if (i != 17)
 						blocksHit[i] = true;
-					else if (i == 17 && solidBricks[i] == 3)
+					if (i == 17 && solidBricks[i] == 3)
 						blocksHit[i] = true;
 					if (i == 17 && noBrickReflection)
 						blocksHit[i] = true;
@@ -431,7 +431,7 @@ void Tema1::Update(float deltaTimeSeconds) {
 					}
 					if (i != 24)
 						blocksHit[i] = true;
-					else if (i == 24 && solidBricks[i] == 3)
+					if (i == 24 && solidBricks[i] == 3)
 						blocksHit[i] = true;
 					if (i == 24 && noBrickReflection)
 						blocksHit[i] = true;
@@ -447,7 +447,7 @@ void Tema1::Update(float deltaTimeSeconds) {
 					}
 					if (i != 24)
 						blocksHit[i] = true;
-					else if (i == 24 && solidBricks[i] == 3)
+					if (i == 24 && solidBricks[i] == 3)
 						blocksHit[i] = true;
 					if (i == 24 && noBrickReflection)
 						blocksHit[i] = true;
@@ -484,7 +484,7 @@ void Tema1::Update(float deltaTimeSeconds) {
 					}
 					if (i != 30)
 						blocksHit[i] = true;
-					else if (i == 30 && solidBricks[i] == 3)
+					if (i == 30 && solidBricks[i] == 3)
 						blocksHit[i] = true;
 					if (i == 30 && noBrickReflection)
 						blocksHit[i] = true;
@@ -500,7 +500,7 @@ void Tema1::Update(float deltaTimeSeconds) {
 					}
 					if (i != 30)
 						blocksHit[i] = true;
-					else if (i == 30 && solidBricks[i] == 3)
+					if (i == 30 && solidBricks[i] == 3)
 						blocksHit[i] = true;
 					if (i == 30 && noBrickReflection)
 						blocksHit[i] = true;
@@ -537,7 +537,7 @@ void Tema1::Update(float deltaTimeSeconds) {
 					}
 					if (i != 42)
 						blocksHit[i] = true;
-					else if (i == 42 && solidBricks[i] == 3)
+					if (i == 42 && solidBricks[i] == 3)
 						blocksHit[i] = true;
 					if (i == 42 && noBrickReflection)
 						blocksHit[i] = true;
@@ -553,7 +553,7 @@ void Tema1::Update(float deltaTimeSeconds) {
 					}
 					if (i != 42)
 						blocksHit[i] = true;
-					else if (i == 42 && solidBricks[i] == 3)
+					if (i == 42 && solidBricks[i] == 3)
 						blocksHit[i] = true;
 					if (i == 42 && noBrickReflection)
 						blocksHit[i] = true;
