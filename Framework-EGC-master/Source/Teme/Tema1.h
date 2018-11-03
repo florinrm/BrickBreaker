@@ -50,17 +50,21 @@ protected:
 
 	Player player;
 	float mouseMoveOX = 0; // mouse moving
+	// vector for bricks (if they are hit or not)
 	std::vector<bool> blocksHit;
 
 	const float platformX = 600, platformY = 30;
 	const float brickLength = 50, brickHeight = 30;
 	const float platformLength = 160, platformHeight = 15;
 
+	// if game has begun
 	bool hasGameBegun = false;
 
+	// game ball coordonates
 	float initialBallPosX = 680 + mouseMoveOX;
 	float initialBallPosY = 58.5;
 
+	// scaling for animation
 	std::vector<float> scaling;
 
 	// power up # 1 - saving wall
@@ -80,5 +84,4 @@ protected:
 	// some very solid bricks
 	std::map<int, int> solidBricks; // solid bricks: 4, 30, 42, 24, 17
 	// if value of a brick is 3 => the brick dissapears
-	// power up # 3 - sticky platform
 };

@@ -91,6 +91,7 @@ void Tema1::Init() {
 	Mesh* bottom = Object2D::CreateRectangle("bottom", corner, 1200, squareSide / 6, glm::vec3(1, 0, 1), true);
 	AddMeshToList(bottom);
 
+	// the very solid bricks, which are not destroyed at the first collision
 	solidBricks.insert(std::make_pair(4, 0));
 	solidBricks.insert(std::make_pair(42, 0));
 	solidBricks.insert(std::make_pair(24, 0));
@@ -159,10 +160,12 @@ void Tema1::Update(float deltaTimeSeconds) {
 		initialBallPosX += signX * 320 * deltaTimeSeconds * cos(angle);
 	}
 
+	// collision with the wall which saves the ball
 	if (hasGameBegun && savingWall && initialBallPosY < 45) {
 		signY *= -1;
 	}
 
+	// if player lost the ball, he / she loses a life. If player lost all lives, game is restarted
 	if (hasGameBegun && ((initialBallPosX < platformX + mouseMoveOX) 
 		|| (initialBallPosX > platformX + mouseMoveOX + 160)) && initialBallPosY < 10 && !savingWall) {
 		hasGameBegun = false;
@@ -187,6 +190,7 @@ void Tema1::Update(float deltaTimeSeconds) {
 		}
 	}
 
+	// if player has won the game, the game restarts
 	if (hasGameBegun) {
 		if ((player.getLives() > 0 && AllBricksDissappeared())) {
 			signX = 1;
@@ -323,6 +327,8 @@ void Tema1::Update(float deltaTimeSeconds) {
 						blocksHit[i] = true;
 					else if (i == 4 && solidBricks[i] == 3)
 						blocksHit[i] = true;
+					if (i == 4 && noBrickReflection)
+						blocksHit[i] = true;
 					if (!noBrickReflection)
 						signY *= -1;
 				}
@@ -335,6 +341,8 @@ void Tema1::Update(float deltaTimeSeconds) {
 					if (i != 4)
 						blocksHit[i] = true;
 					else if (i == 4 && solidBricks[i] == 3)
+						blocksHit[i] = true;
+					if (i == 4 && noBrickReflection)
 						blocksHit[i] = true;
 					if (!noBrickReflection)
 						signX *= -1;
@@ -372,6 +380,8 @@ void Tema1::Update(float deltaTimeSeconds) {
 						blocksHit[i] = true;
 					else if (i == 17 && solidBricks[i] == 3)
 						blocksHit[i] = true;
+					if (i == 17 && noBrickReflection)
+						blocksHit[i] = true;
 					if (!noBrickReflection)
 						signY *= -1;
 				}
@@ -385,6 +395,8 @@ void Tema1::Update(float deltaTimeSeconds) {
 					if (i != 17)
 						blocksHit[i] = true;
 					else if (i == 17 && solidBricks[i] == 3)
+						blocksHit[i] = true;
+					if (i == 17 && noBrickReflection)
 						blocksHit[i] = true;
 					if (!noBrickReflection)
 						signX *= -1;
@@ -421,6 +433,8 @@ void Tema1::Update(float deltaTimeSeconds) {
 						blocksHit[i] = true;
 					else if (i == 24 && solidBricks[i] == 3)
 						blocksHit[i] = true;
+					if (i == 24 && noBrickReflection)
+						blocksHit[i] = true;
 					if (!noBrickReflection)
 						signY *= -1;
 				}
@@ -434,6 +448,8 @@ void Tema1::Update(float deltaTimeSeconds) {
 					if (i != 24)
 						blocksHit[i] = true;
 					else if (i == 24 && solidBricks[i] == 3)
+						blocksHit[i] = true;
+					if (i == 24 && noBrickReflection)
 						blocksHit[i] = true;
 					if (!noBrickReflection)
 						signX *= -1;
@@ -470,6 +486,8 @@ void Tema1::Update(float deltaTimeSeconds) {
 						blocksHit[i] = true;
 					else if (i == 30 && solidBricks[i] == 3)
 						blocksHit[i] = true;
+					if (i == 30 && noBrickReflection)
+						blocksHit[i] = true;
 					if (!noBrickReflection)
 						signY *= -1;
 				}
@@ -483,6 +501,8 @@ void Tema1::Update(float deltaTimeSeconds) {
 					if (i != 30)
 						blocksHit[i] = true;
 					else if (i == 30 && solidBricks[i] == 3)
+						blocksHit[i] = true;
+					if (i == 30 && noBrickReflection)
 						blocksHit[i] = true;
 					if (!noBrickReflection)
 						signX *= -1;
@@ -519,6 +539,8 @@ void Tema1::Update(float deltaTimeSeconds) {
 						blocksHit[i] = true;
 					else if (i == 42 && solidBricks[i] == 3)
 						blocksHit[i] = true;
+					if (i == 42 && noBrickReflection)
+						blocksHit[i] = true;
 					if (!noBrickReflection)
 						signY *= -1;
 				}
@@ -532,6 +554,8 @@ void Tema1::Update(float deltaTimeSeconds) {
 					if (i != 42)
 						blocksHit[i] = true;
 					else if (i == 42 && solidBricks[i] == 3)
+						blocksHit[i] = true;
+					if (i == 42 && noBrickReflection)
 						blocksHit[i] = true;
 					if (!noBrickReflection)
 						signX *= -1;
