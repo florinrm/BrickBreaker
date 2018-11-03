@@ -133,6 +133,8 @@ void Tema1::Update(float deltaTimeSeconds) {
 	modelMatrix *= Transform2D::Translate(translateX, translateY);
 	RenderMesh2D(meshes["platform"], shaders["VertexColor"], modelMatrix);
 
+	//std::cout << initialBallPosX << std::endl;
+
 	// collisions with walls
 	if (hasGameBegun) {
 		// if ball touches the platform
@@ -594,7 +596,8 @@ void Tema1::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY) {
 }
 void Tema1::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods) {
 	if (!hasGameBegun) {
-		hasGameBegun = true;
+		if ((initialBallPosX <= 1220 && initialBallPosX >= 58))
+			hasGameBegun = true;
 	}
 	else if (hasGameBegun && ((player.getLives() == 0) || (player.getLives() > 0 && AllBricksDissappeared()))) {
 		hasGameBegun = false;
