@@ -27,8 +27,8 @@ void Tema1::Init() {
 	float squareSide = 100;
 
 	// compute coordinates of square center
-	cx = corner.x + squareSide / 2;
-	cy = corner.y + squareSide / 2;
+	cx = corner.x + squareSide / 16;
+	cy = corner.y + squareSide / 16;
 
 	// initialize tx and ty (the translation steps)
 	translateX = 0;
@@ -42,14 +42,14 @@ void Tema1::Init() {
 	angularStep = 0;
 
 
-	Mesh* square1 = Object2D::CreateRectangle("left", corner, squareSide * 2 / 4, resolution.y, glm::vec3(1, 0, 0), true);
-	AddMeshToList(square1);
+	Mesh* left = Object2D::CreateRectangle("left", corner, squareSide * 2 / 4, resolution.y, glm::vec3(1, 0, 0), true);
+	AddMeshToList(left);
 
-	Mesh* square2 = Object2D::CreateRectangle("right", corner, resolution.x, squareSide / 2, glm::vec3(1, 0, 0), true);
-	AddMeshToList(square2);
+	Mesh* right = Object2D::CreateRectangle("right", corner, resolution.x, squareSide / 2, glm::vec3(1, 0, 0), true);
+	AddMeshToList(right);
 
-	Mesh* square3 = Object2D::CreateRectangle("bottom", corner, squareSide * 2 / 4, resolution.y, glm::vec3(1, 0, 0), true);
-	AddMeshToList(square3);
+	Mesh* top = Object2D::CreateRectangle("top", corner, squareSide * 2 / 4, resolution.y, glm::vec3(1, 0, 0), true);
+	AddMeshToList(top);
 
 	Mesh* platform = Object2D::CreateRectangle("platform", corner, 160, 15, glm::vec3(0, 1, 0), true);
 	AddMeshToList(platform);
@@ -78,6 +78,15 @@ void Tema1::Init() {
 
 	player = Player();
 	scaling.resize(50, 1.f);
+
+	Mesh* powerup1 = Object2D::CreateSquare("powerup1", corner, squareSide / 8, glm::vec3(0.5f, 0.5f, 0), true);
+	AddMeshToList(powerup1);
+
+	Mesh* powerup2 = Object2D::CreateSquare("powerup2", corner, squareSide, glm::vec3(1.f, 0.5f, 1.f), true);
+	AddMeshToList(powerup2);
+
+	Mesh* bottom = Object2D::CreateRectangle("bottom", corner, 1200, squareSide / 6, glm::vec3(1, 0, 1), true);
+	AddMeshToList(bottom);
 }
 
 void Tema1::FrameStart() {
@@ -106,7 +115,7 @@ void Tema1::Update(float deltaTimeSeconds) {
 	modelMatrix *= Transform2D::Translate(1230, 75);
 	rotation += deltaTimeSeconds;
 	modelMatrix *= Transform2D::Translate(translateX, translateY);
-	RenderMesh2D(meshes["bottom"], shaders["VertexColor"], modelMatrix);
+	RenderMesh2D(meshes["top"], shaders["VertexColor"], modelMatrix);
 
 	modelMatrix = glm::mat3(1);
 	modelMatrix *= Transform2D::Translate(platformX + mouseMoveOX, platformY);
@@ -141,15 +150,20 @@ void Tema1::Update(float deltaTimeSeconds) {
 		initialBallPosX += signX * 320 * deltaTimeSeconds * cos(angle);
 	}
 
+	//std::cout << "Save wall? " << savingWall << " " << initialBallPosY << " " << signY << std::endl;
+	if (hasGameBegun && savingWall && initialBallPosY < 45) {
+		signY *= -1;
+	}
+
 	if (hasGameBegun && ((initialBallPosX < platformX + mouseMoveOX) 
-		|| (initialBallPosX > platformX + mouseMoveOX + 160)) && initialBallPosY < 58.5) {
+		|| (initialBallPosX > platformX + mouseMoveOX + 160)) && initialBallPosY < 10 && !savingWall) {
 		hasGameBegun = false;
+		signX = 1;
+		signY = 1;
+		initialBallPosX = 680 + mouseMoveOX;
+		initialBallPosY = 58.7;
 		player.decreaseLives();
 		if ((player.getLives() == 0)) {
-			signX = 1;
-			signY = 1;
-			initialBallPosX = 680 + mouseMoveOX;
-			initialBallPosY = 58.7;
 			player.setLives(3);
 			hasGameBegun = false;
 			for (int i = 0; i < 50; ++i)
@@ -170,6 +184,7 @@ void Tema1::Update(float deltaTimeSeconds) {
 		}
 	}
 
+	// render of game ball
 	modelMatrix = glm::mat3(1);
 	if (!hasGameBegun) {
 		modelMatrix *= Transform2D::Translate(680 + mouseMoveOX, initialBallPosY);
@@ -182,6 +197,7 @@ void Tema1::Update(float deltaTimeSeconds) {
 	modelMatrix *= Transform2D::Translate(translateX, translateY);
 	RenderMesh2D(meshes["ball"], shaders["VertexColor"], modelMatrix);
 
+	// lifes
 	if (player.getLives() > 0) {
 		modelMatrix = glm::mat3(1);
 		modelMatrix *= Transform2D::Translate(30, 30);
@@ -204,6 +220,39 @@ void Tema1::Update(float deltaTimeSeconds) {
 		modelMatrix *= Transform2D::Scale(13, 13);
 		modelMatrix *= Transform2D::Translate(translateX, translateY);
 		RenderMesh2D(meshes["life3"], shaders["VertexColor"], modelMatrix);
+	}
+
+
+	// power up #1 square
+	if (blocksHit[27] && !savingWall && powerUpTime1 == 0.f) {
+		modelMatrix = glm::mat3(1);
+		modelMatrix *= Transform2D::Translate(powerUp1X, powerUp1Y);
+		powerUp1Y -= 100 * deltaTimeSeconds;
+		modelMatrix *= Transform2D::Scale(1.5, 1.5);
+		powerUp1Rotation += 4 * deltaTimeSeconds;
+		modelMatrix *= Transform2D::Rotate(powerUp1Rotation);
+		modelMatrix *= Transform2D::Translate(-cx, -cy);
+		RenderMesh2D(meshes["powerup1"], shaders["VertexColor"], modelMatrix);
+		if ((powerUp1X >= platformX + mouseMoveOX)
+			&& (powerUp1X <= platformX + mouseMoveOX + 160) && powerUp1Y < 58.6)
+			savingWall = true;
+	}
+
+	// time for power up #1
+	if (savingWall) {
+		if (powerUpTime1 < 30.f)
+			powerUpTime1 += deltaTimeSeconds;
+		else {
+			savingWall = false;
+		}
+	}
+
+	// bottom wall for power up #1
+	if (savingWall) {
+		modelMatrix = glm::mat3(1);
+		modelMatrix *= Transform2D::Translate(30, 5);
+		modelMatrix *= Transform2D::Translate(translateX, translateY);
+		RenderMesh2D(meshes["bottom"], shaders["VertexColor"], modelMatrix);
 	}
 
 	for (int i = 0; i < 10; ++i) {

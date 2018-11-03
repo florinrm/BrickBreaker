@@ -62,5 +62,12 @@ protected:
 
 	std::vector<float> scaling;
 
-	bool savingWall = true;
+	bool savingWall = false;
+	bool stickyPlatform = false;
+
+	// power up # 1 - saving wall
+	float powerUpTime1 = 0;
+	float powerUp1X = 275 + 80 * 7;
+	float powerUp1Y = 405;
+	float powerUp1Rotation = 0;
 };
