@@ -4,6 +4,7 @@
 #include <string>
 #include <Core/Engine.h>
 #include "Player.h"
+#include <map>
 
 
 class Tema1 : public SimpleScene {
@@ -62,12 +63,22 @@ protected:
 
 	std::vector<float> scaling;
 
-	bool savingWall = false;
-	bool stickyPlatform = false;
-
 	// power up # 1 - saving wall
+	bool savingWall = false;
 	float powerUpTime1 = 0;
 	float powerUp1X = 275 + 80 * 7;
 	float powerUp1Y = 405;
 	float powerUp1Rotation = 0;
+
+	// power up # 2 - destroy bricks without reflection
+	bool noBrickReflection = false;
+	float powerUpTime2 = 0;
+	float powerUp2X = 275 + 80 * 5;
+	float powerUp2Y = 465;
+	float powerUp2Rotation = 0;
+
+	// some very solid bricks
+	std::map<int, int> solidBricks; // solid bricks: 4, 30, 42, 24, 17
+	// if value of a brick is 3 => the brick dissapears
+	// power up # 3 - sticky platform
 };

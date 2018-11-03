@@ -82,11 +82,20 @@ void Tema1::Init() {
 	Mesh* powerup1 = Object2D::CreateSquare("powerup1", corner, squareSide / 8, glm::vec3(0.5f, 0.5f, 0), true);
 	AddMeshToList(powerup1);
 
-	Mesh* powerup2 = Object2D::CreateSquare("powerup2", corner, squareSide, glm::vec3(1.f, 0.5f, 1.f), true);
+	Mesh* powerup2 = Object2D::CreateSquare("powerup2", corner, squareSide / 8, glm::vec3(1.f, 0.5f, 1.f), true);
 	AddMeshToList(powerup2);
+
+	Mesh* powerup3 = Object2D::CreateSquare("powerup3", corner, squareSide / 8, glm::vec3(0.5f, 0.5f, 0.7f), true);
+	AddMeshToList(powerup3);
 
 	Mesh* bottom = Object2D::CreateRectangle("bottom", corner, 1200, squareSide / 6, glm::vec3(1, 0, 1), true);
 	AddMeshToList(bottom);
+
+	solidBricks.insert(std::make_pair(4, 0));
+	solidBricks.insert(std::make_pair(42, 0));
+	solidBricks.insert(std::make_pair(24, 0));
+	solidBricks.insert(std::make_pair(30, 0));
+	solidBricks.insert(std::make_pair(17, 0));
 }
 
 void Tema1::FrameStart() {
@@ -150,7 +159,6 @@ void Tema1::Update(float deltaTimeSeconds) {
 		initialBallPosX += signX * 320 * deltaTimeSeconds * cos(angle);
 	}
 
-	//std::cout << "Save wall? " << savingWall << " " << initialBallPosY << " " << signY << std::endl;
 	if (hasGameBegun && savingWall && initialBallPosY < 45) {
 		signY *= -1;
 	}
@@ -160,14 +168,22 @@ void Tema1::Update(float deltaTimeSeconds) {
 		hasGameBegun = false;
 		signX = 1;
 		signY = 1;
+		angle = M_PI / 2;
 		initialBallPosX = 680 + mouseMoveOX;
 		initialBallPosY = 58.7;
 		player.decreaseLives();
 		if ((player.getLives() == 0)) {
 			player.setLives(3);
 			hasGameBegun = false;
-			for (int i = 0; i < 50; ++i)
+			solidBricks.insert(std::make_pair(4, 0));
+			solidBricks.insert(std::make_pair(42, 0));
+			solidBricks.insert(std::make_pair(24, 0));
+			solidBricks.insert(std::make_pair(30, 0));
+			solidBricks.insert(std::make_pair(17, 0));
+			for (int i = 0; i < 50; ++i) {
 				blocksHit[i] = false;
+				scaling[i] = false;
+			}
 		}
 	}
 
@@ -175,12 +191,20 @@ void Tema1::Update(float deltaTimeSeconds) {
 		if ((player.getLives() > 0 && AllBricksDissappeared())) {
 			signX = 1;
 			signY = 1;
+			angle = M_PI / 2;
 			initialBallPosX = 680 + mouseMoveOX;
 			initialBallPosY = 58.7;
 			player.setLives(3);
+			solidBricks.insert(std::make_pair(4, 0));
+			solidBricks.insert(std::make_pair(42, 0));
+			solidBricks.insert(std::make_pair(24, 0));
+			solidBricks.insert(std::make_pair(30, 0));
+			solidBricks.insert(std::make_pair(17, 0));
 			hasGameBegun = false;
-			for (int i = 0; i < 50; ++i)
+			for (int i = 0; i < 50; ++i) {
 				blocksHit[i] = false;
+				scaling[i] = 1.f;
+			}
 		}
 	}
 
@@ -255,6 +279,30 @@ void Tema1::Update(float deltaTimeSeconds) {
 		RenderMesh2D(meshes["bottom"], shaders["VertexColor"], modelMatrix);
 	}
 
+	// power up #2
+	if (blocksHit[35] && !noBrickReflection && powerUpTime2 == 0.f) {
+		modelMatrix = glm::mat3(1);
+		modelMatrix *= Transform2D::Translate(powerUp2X, powerUp2Y);
+		powerUp2Y -= 100 * deltaTimeSeconds;
+		modelMatrix *= Transform2D::Scale(1.5, 1.5);
+		powerUp2Rotation += 4 * deltaTimeSeconds;
+		modelMatrix *= Transform2D::Rotate(powerUp2Rotation);
+		modelMatrix *= Transform2D::Translate(-cx, -cy);
+		RenderMesh2D(meshes["powerup2"], shaders["VertexColor"], modelMatrix);
+		if ((powerUp2X >= platformX + mouseMoveOX)
+			&& (powerUp2X <= platformX + mouseMoveOX + 160) && powerUp2Y < 58.6)
+			noBrickReflection = true;
+	}
+
+	// time for power up #2
+	if (noBrickReflection) {
+		if (powerUpTime2 < 15.f)
+			powerUpTime2 += deltaTimeSeconds;
+		else {
+			noBrickReflection = false;
+		}
+	}
+
 	for (int i = 0; i < 10; ++i) {
 		if (!blocksHit[i]) {
 			modelMatrix = glm::mat3(1);
@@ -267,14 +315,29 @@ void Tema1::Update(float deltaTimeSeconds) {
 			if (!blocksHit[i]) {
 				if (initialBallPosX >= (250 + 80 * i) && initialBallPosX <= (250 + 80 * i + brickLength) && 
 						(fabs(initialBallPosY - 270) < 3.f || fabs(initialBallPosY - 270 - brickHeight) < 3.f)) {
-					blocksHit[i] = true;
-					signY *= -1;
+					// 4 is the very solid brick
+					if (i == 4) {
+						solidBricks[i]++;
+					}
+					if (i != 4)
+						blocksHit[i] = true;
+					else if (i == 4 && solidBricks[i] == 3)
+						blocksHit[i] = true;
+					if (!noBrickReflection)
+						signY *= -1;
 				}
 
 				if (initialBallPosY >= 270 && initialBallPosY <= 270 + brickHeight 
 						&& (fabs(initialBallPosX - (250 + 80 * i)) < 3.f || fabs(initialBallPosX - (250 + 80 * i + brickLength)) < 3.f)) {
-					blocksHit[i] = true;
-					signX *= -1;
+					if (i == 4) {
+						solidBricks[i]++;
+					}
+					if (i != 4)
+						blocksHit[i] = true;
+					else if (i == 4 && solidBricks[i] == 3)
+						blocksHit[i] = true;
+					if (!noBrickReflection)
+						signX *= -1;
 				}
 			}
 			else {
@@ -301,14 +364,30 @@ void Tema1::Update(float deltaTimeSeconds) {
 			if (!blocksHit[i]) {
 				if (initialBallPosX >= (250 + 80 * (i - 10)) && initialBallPosX <= (250 + 80 * (i - 10) + brickLength) &&
 					(fabs(initialBallPosY - 330) < 3.f || fabs(initialBallPosY - 330 - brickHeight) < 3.f)) {
-					blocksHit[i] = true;
-					signY *= -1;
+					// 17 is the very solid brick
+					if (i == 17) {
+						solidBricks[i]++;
+					}
+					if (i != 17)
+						blocksHit[i] = true;
+					else if (i == 17 && solidBricks[i] == 3)
+						blocksHit[i] = true;
+					if (!noBrickReflection)
+						signY *= -1;
 				}
 
 				if (initialBallPosY >= 330 && initialBallPosY <= 330 + brickHeight
 					&& (fabs(initialBallPosX - (250 + 80 * (i - 10))) < 3.f || fabs(initialBallPosX - (250 + 80 * (i - 10) + brickLength)) < 3.f)) {
-					blocksHit[i] = true;
-					signX *= -1;
+					// 17 is the very solid brick
+					if (i == 17) {
+						solidBricks[i]++;
+					}
+					if (i != 17)
+						blocksHit[i] = true;
+					else if (i == 17 && solidBricks[i] == 3)
+						blocksHit[i] = true;
+					if (!noBrickReflection)
+						signX *= -1;
 				}
 			} else {
 				if (scaling[i] > 0.f) {
@@ -334,14 +413,30 @@ void Tema1::Update(float deltaTimeSeconds) {
 			if (!blocksHit[i]) {
 				if (initialBallPosX >= (250 + 80 * (i - 20)) && initialBallPosX <= (250 + 80 * (i - 20) + brickLength) &&
 					(fabs(initialBallPosY - 390) < 3.f || fabs(initialBallPosY - 390 - brickHeight) < 3.f)) {
-					blocksHit[i] = true;
-					signY *= -1;
+					// 24 is the very solid brick
+					if (i == 24) {
+						solidBricks[i]++;
+					}
+					if (i != 24)
+						blocksHit[i] = true;
+					else if (i == 24 && solidBricks[i] == 3)
+						blocksHit[i] = true;
+					if (!noBrickReflection)
+						signY *= -1;
 				}
 
 				if (initialBallPosY >= 390 && initialBallPosY <= 390 + brickHeight
 					&& (fabs(initialBallPosX - (250 + 80 * (i - 20))) < 3.f || fabs(initialBallPosX - (250 + 80 * (i - 20) + brickLength)) < 3.f)) {
-					blocksHit[i] = true;
-					signX *= -1;
+					// 24 is the very solid brick
+					if (i == 24) {
+						solidBricks[i]++;
+					}
+					if (i != 24)
+						blocksHit[i] = true;
+					else if (i == 24 && solidBricks[i] == 3)
+						blocksHit[i] = true;
+					if (!noBrickReflection)
+						signX *= -1;
 				}
 			} else {
 				if (scaling[i] > 0.f) {
@@ -367,14 +462,30 @@ void Tema1::Update(float deltaTimeSeconds) {
 			if (!blocksHit[i]) {
 				if (initialBallPosX >= (250 + 80 * (i - 30)) && initialBallPosX <= (250 + 80 * (i - 30) + brickLength) &&
 					(fabs(initialBallPosY - 450) < 3.f || fabs(initialBallPosY - 450 - brickHeight) < 3.f)) {
-					blocksHit[i] = true;
-					signY *= -1;
+					// 30 is the very solid brick
+					if (i == 30) {
+						solidBricks[i]++;
+					}
+					if (i != 30)
+						blocksHit[i] = true;
+					else if (i == 30 && solidBricks[i] == 3)
+						blocksHit[i] = true;
+					if (!noBrickReflection)
+						signY *= -1;
 				}
 
 				if (initialBallPosY >= 450 && initialBallPosY <= 450 + brickHeight
 					&& (fabs(initialBallPosX - (250 + 80 * (i - 30))) < 3.f || fabs(initialBallPosX - (250 + 80 * (i - 30) + brickLength)) < 3.f)) {
-					blocksHit[i] = true;
-					signX *= -1;
+					// 30 is the very solid brick
+					if (i == 30) {
+						solidBricks[i]++;
+					}
+					if (i != 30)
+						blocksHit[i] = true;
+					else if (i == 30 && solidBricks[i] == 3)
+						blocksHit[i] = true;
+					if (!noBrickReflection)
+						signX *= -1;
 				}
 			} else {
 				if (scaling[i] > 0.f) {
@@ -400,14 +511,30 @@ void Tema1::Update(float deltaTimeSeconds) {
 			if (!blocksHit[i]) {
 				if (initialBallPosX >= (250 + 80 * (i - 40)) && initialBallPosX <= (250 + 80 * (i - 40) + brickLength) &&
 					(fabs(initialBallPosY - 510) < 3.f || fabs(initialBallPosY - 510 - brickHeight) < 3.f)) {
-					blocksHit[i] = true;
-					signY *= -1;
+					// 42 is the very solid brick
+					if (i == 42) {
+						solidBricks[i]++;
+					}
+					if (i != 42)
+						blocksHit[i] = true;
+					else if (i == 42 && solidBricks[i] == 3)
+						blocksHit[i] = true;
+					if (!noBrickReflection)
+						signY *= -1;
 				}
 
 				if (initialBallPosY >= 510 && initialBallPosY <= 510 + brickHeight
 					&& (fabs(initialBallPosX - (250 + 80 * (i - 40))) < 3.f || fabs(initialBallPosX - (250 + 80 * (i - 40) + brickLength)) < 3.f)) {
-					blocksHit[i] = true;
-					signX *= -1;
+					// 42 is the very solid brick
+					if (i == 42) {
+						solidBricks[i]++;
+					}
+					if (i != 42)
+						blocksHit[i] = true;
+					else if (i == 42 && solidBricks[i] == 3)
+						blocksHit[i] = true;
+					if (!noBrickReflection)
+						signX *= -1;
 				}
 			} else {
 				if (scaling[i] > 0.f) {
