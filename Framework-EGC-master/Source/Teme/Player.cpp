@@ -11,3 +11,7 @@ int Player::getLives() {
 void Player::setLives(int n) {
 	lives = n;
 }
+
+void Player::increaseLives() {
+	++lives;
+}

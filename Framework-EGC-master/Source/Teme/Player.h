@@ -9,4 +9,5 @@ class Player {
 		int getLives();
 		void decreaseLives();
 		void setLives(int n);
+		void increaseLives();
 };

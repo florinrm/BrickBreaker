@@ -81,7 +81,14 @@ protected:
 	float powerUp2Y = 465;
 	float powerUp2Rotation = 0;
 
-	// some very solid bricks
-	std::map<int, int> solidBricks; // solid bricks: 4, 30, 42, 24, 17
-	// if value of a brick is 3 => the brick dissapears
+	// bricks are more solid in the next level
+	int level = 0; // level of difficulty (for brick collisions)
+	std::vector<int> solid;
+
+	// power up # 3 - recover a life
+	bool recoverLife = false;
+	bool wasLifeRecovered = false;
+	float powerUp3X = 275 + 80 * 5;
+	float powerUp3Y = 345;
+	float powerUp3Rotation = 0;
 };

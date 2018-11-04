@@ -91,12 +91,7 @@ void Tema1::Init() {
 	Mesh* bottom = Object2D::CreateRectangle("bottom", corner, 1200, squareSide / 6, glm::vec3(1, 0, 1), true);
 	AddMeshToList(bottom);
 
-	// the very solid bricks, which are not destroyed at the first collision
-	solidBricks.insert(std::make_pair(4, 0));
-	solidBricks.insert(std::make_pair(42, 0));
-	solidBricks.insert(std::make_pair(24, 0));
-	solidBricks.insert(std::make_pair(30, 0));
-	solidBricks.insert(std::make_pair(17, 0));
+	solid.resize(50, 0);
 }
 
 void Tema1::FrameStart() {
@@ -180,14 +175,10 @@ void Tema1::Update(float deltaTimeSeconds) {
 		if ((player.getLives() == 0)) {
 			player.setLives(3);
 			hasGameBegun = false;
-			solidBricks[4] = 0;
-			solidBricks[42] = 0;
-			solidBricks[24] = 0;
-			solidBricks[30] = 0;
-			solidBricks[17] = 0;
 			for (int i = 0; i < 50; ++i) {
 				blocksHit[i] = false;
 				scaling[i] = 1.f;
+				solid[i] = level;
 			}
 		}
 	}
@@ -201,11 +192,7 @@ void Tema1::Update(float deltaTimeSeconds) {
 			initialBallPosX = 680 + mouseMoveOX;
 			initialBallPosY = 58.7;
 			player.setLives(3);
-			solidBricks[4] = 0;
-			solidBricks[42] = 0;
-			solidBricks[24] = 0;
-			solidBricks[30] = 0;
-			solidBricks[17] = 0;
+			++level;
 			hasGameBegun = false;
 			for (int i = 0; i < 50; ++i) {
 				blocksHit[i] = false;
@@ -309,6 +296,28 @@ void Tema1::Update(float deltaTimeSeconds) {
 		}
 	}
 
+	// power up #3 - adding a life, if one was lost
+	if (recoverLife && player.getLives() < 3 && player.getLives() > 0) {
+		player.increaseLives();
+		recoverLife = false;
+		wasLifeRecovered = true;
+	}
+
+	// power up #3
+	if (blocksHit[15] && !recoverLife && !wasLifeRecovered) {
+		modelMatrix = glm::mat3(1);
+		modelMatrix *= Transform2D::Translate(powerUp3X, powerUp3Y);
+		powerUp3Y -= 100 * deltaTimeSeconds;
+		modelMatrix *= Transform2D::Scale(1.5, 1.5);
+		powerUp3Rotation += 4 * deltaTimeSeconds;
+		modelMatrix *= Transform2D::Rotate(powerUp3Rotation);
+		modelMatrix *= Transform2D::Translate(-cx, -cy);
+		RenderMesh2D(meshes["powerup3"], shaders["VertexColor"], modelMatrix);
+		if ((powerUp3X >= platformX + mouseMoveOX)
+			&& (powerUp3X <= platformX + mouseMoveOX + 160) && powerUp3Y < 58.6)
+			recoverLife = true;
+	}
+
 	for (int i = 0; i < 10; ++i) {
 		if (!blocksHit[i]) {
 			modelMatrix = glm::mat3(1);
@@ -321,31 +330,33 @@ void Tema1::Update(float deltaTimeSeconds) {
 			if (!blocksHit[i]) {
 				if (initialBallPosX >= (250 + 80 * i) && initialBallPosX <= (250 + 80 * i + brickLength) && 
 						(fabs(initialBallPosY - 270) < 3.f || fabs(initialBallPosY - 270 - brickHeight) < 3.f)) {
-					// 4 is the very solid brick
-					if (i == 4) {
-						solidBricks[i]++;
+
+					if (solid[i] == level) {
+						blocksHit[i] = true;
+					} else {
+						if (noBrickReflection)
+							blocksHit[i] = true;
+						else
+							solid[i]++;
 					}
-					if (i != 4)
-						blocksHit[i] = true;
-					if (i == 4 && solidBricks[i] == 3)
-						blocksHit[i] = true;
-					if (i == 4 && noBrickReflection)
-						blocksHit[i] = true;
+
 					if (!noBrickReflection)
 						signY *= -1;
 				}
 
 				if (initialBallPosY >= 270 && initialBallPosY <= 270 + brickHeight 
 						&& (fabs(initialBallPosX - (250 + 80 * i)) < 3.f || fabs(initialBallPosX - (250 + 80 * i + brickLength)) < 3.f)) {
-					if (i == 4) {
-						solidBricks[i]++;
+
+					if (solid[i] == level) {
+						blocksHit[i] = true;
 					}
-					if (i != 4)
-						blocksHit[i] = true;
-					if (i == 4 && solidBricks[i] == 3)
-						blocksHit[i] = true;
-					if (i == 4 && noBrickReflection)
-						blocksHit[i] = true;
+					else {
+						if (noBrickReflection)
+							blocksHit[i] = true;
+						else
+							solid[i]++;
+					}
+
 					if (!noBrickReflection)
 						signX *= -1;
 				}
@@ -374,32 +385,34 @@ void Tema1::Update(float deltaTimeSeconds) {
 			if (!blocksHit[i]) {
 				if (initialBallPosX >= (250 + 80 * (i - 10)) && initialBallPosX <= (250 + 80 * (i - 10) + brickLength) &&
 					(fabs(initialBallPosY - 330) < 3.f || fabs(initialBallPosY - 330 - brickHeight) < 3.f)) {
-					// 17 is the very solid brick
-					if (i == 17) {
-						solidBricks[i]++;
+					
+					if (solid[i] == level) {
+						blocksHit[i] = true;
 					}
-					if (i != 17)
-						blocksHit[i] = true;
-					if (i == 17 && solidBricks[i] == 3)
-						blocksHit[i] = true;
-					if (i == 17 && noBrickReflection)
-						blocksHit[i] = true;
+					else {
+						if (noBrickReflection)
+							blocksHit[i] = true;
+						else
+							solid[i]++;
+					}
+
 					if (!noBrickReflection)
 						signY *= -1;
 				}
 
 				if (initialBallPosY >= 330 && initialBallPosY <= 330 + brickHeight
 					&& (fabs(initialBallPosX - (250 + 80 * (i - 10))) < 3.f || fabs(initialBallPosX - (250 + 80 * (i - 10) + brickLength)) < 3.f)) {
-					// 17 is the very solid brick
-					if (i == 17) {
-						solidBricks[i]++;
+					
+					if (solid[i] == level) {
+						blocksHit[i] = true;
 					}
-					if (i != 17)
-						blocksHit[i] = true;
-					if (i == 17 && solidBricks[i] == 3)
-						blocksHit[i] = true;
-					if (i == 17 && noBrickReflection)
-						blocksHit[i] = true;
+					else {
+						if (noBrickReflection)
+							blocksHit[i] = true;
+						else
+							solid[i]++;
+					}
+
 					if (!noBrickReflection)
 						signX *= -1;
 				}
@@ -427,32 +440,34 @@ void Tema1::Update(float deltaTimeSeconds) {
 			if (!blocksHit[i]) {
 				if (initialBallPosX >= (250 + 80 * (i - 20)) && initialBallPosX <= (250 + 80 * (i - 20) + brickLength) &&
 					(fabs(initialBallPosY - 390) < 3.f || fabs(initialBallPosY - 390 - brickHeight) < 3.f)) {
-					// 24 is the very solid brick
-					if (i == 24) {
-						solidBricks[i]++;
+					
+					if (solid[i] == level) {
+						blocksHit[i] = true;
 					}
-					if (i != 24)
-						blocksHit[i] = true;
-					if (i == 24 && solidBricks[i] == 3)
-						blocksHit[i] = true;
-					if (i == 24 && noBrickReflection)
-						blocksHit[i] = true;
+					else {
+						if (noBrickReflection)
+							blocksHit[i] = true;
+						else
+							solid[i]++;
+					}
+
 					if (!noBrickReflection)
 						signY *= -1;
 				}
 
 				if (initialBallPosY >= 390 && initialBallPosY <= 390 + brickHeight
 					&& (fabs(initialBallPosX - (250 + 80 * (i - 20))) < 3.f || fabs(initialBallPosX - (250 + 80 * (i - 20) + brickLength)) < 3.f)) {
-					// 24 is the very solid brick
-					if (i == 24) {
-						solidBricks[i]++;
+					
+					if (solid[i] == level) {
+						blocksHit[i] = true;
 					}
-					if (i != 24)
-						blocksHit[i] = true;
-					if (i == 24 && solidBricks[i] == 3)
-						blocksHit[i] = true;
-					if (i == 24 && noBrickReflection)
-						blocksHit[i] = true;
+					else {
+						if (noBrickReflection)
+							blocksHit[i] = true;
+						else
+							solid[i]++;
+					}
+
 					if (!noBrickReflection)
 						signX *= -1;
 				}
@@ -480,32 +495,34 @@ void Tema1::Update(float deltaTimeSeconds) {
 			if (!blocksHit[i]) {
 				if (initialBallPosX >= (250 + 80 * (i - 30)) && initialBallPosX <= (250 + 80 * (i - 30) + brickLength) &&
 					(fabs(initialBallPosY - 450) < 3.f || fabs(initialBallPosY - 450 - brickHeight) < 3.f)) {
-					// 30 is the very solid brick
-					if (i == 30) {
-						solidBricks[i]++;
+					
+					if (solid[i] == level) {
+						blocksHit[i] = true;
 					}
-					if (i != 30)
-						blocksHit[i] = true;
-					if (i == 30 && solidBricks[i] == 3)
-						blocksHit[i] = true;
-					if (i == 30 && noBrickReflection)
-						blocksHit[i] = true;
+					else {
+						if (noBrickReflection)
+							blocksHit[i] = true;
+						else
+							solid[i]++;
+					}
+
 					if (!noBrickReflection)
 						signY *= -1;
 				}
 
 				if (initialBallPosY >= 450 && initialBallPosY <= 450 + brickHeight
 					&& (fabs(initialBallPosX - (250 + 80 * (i - 30))) < 3.f || fabs(initialBallPosX - (250 + 80 * (i - 30) + brickLength)) < 3.f)) {
-					// 30 is the very solid brick
-					if (i == 30) {
-						solidBricks[i]++;
+					
+					if (solid[i] == level) {
+						blocksHit[i] = true;
 					}
-					if (i != 30)
-						blocksHit[i] = true;
-					if (i == 30 && solidBricks[i] == 3)
-						blocksHit[i] = true;
-					if (i == 30 && noBrickReflection)
-						blocksHit[i] = true;
+					else {
+						if (noBrickReflection)
+							blocksHit[i] = true;
+						else
+							solid[i]++;
+					}
+					
 					if (!noBrickReflection)
 						signX *= -1;
 				}
@@ -533,32 +550,34 @@ void Tema1::Update(float deltaTimeSeconds) {
 			if (!blocksHit[i]) {
 				if (initialBallPosX >= (250 + 80 * (i - 40)) && initialBallPosX <= (250 + 80 * (i - 40) + brickLength) &&
 					(fabs(initialBallPosY - 510) < 3.f || fabs(initialBallPosY - 510 - brickHeight) < 3.f)) {
-					// 42 is the very solid brick
-					if (i == 42) {
-						solidBricks[i]++;
+					
+					if (solid[i] == level) {
+						blocksHit[i] = true;
 					}
-					if (i != 42)
-						blocksHit[i] = true;
-					if (i == 42 && solidBricks[i] == 3)
-						blocksHit[i] = true;
-					if (i == 42 && noBrickReflection)
-						blocksHit[i] = true;
+					else {
+						if (noBrickReflection)
+							blocksHit[i] = true;
+						else
+							solid[i]++;
+					
+					}
 					if (!noBrickReflection)
 						signY *= -1;
 				}
 
 				if (initialBallPosY >= 510 && initialBallPosY <= 510 + brickHeight
 					&& (fabs(initialBallPosX - (250 + 80 * (i - 40))) < 3.f || fabs(initialBallPosX - (250 + 80 * (i - 40) + brickLength)) < 3.f)) {
-					// 42 is the very solid brick
-					if (i == 42) {
-						solidBricks[i]++;
+					
+					if (solid[i] == level) {
+						blocksHit[i] = true;
 					}
-					if (i != 42)
-						blocksHit[i] = true;
-					if (i == 42 && solidBricks[i] == 3)
-						blocksHit[i] = true;
-					if (i == 42 && noBrickReflection)
-						blocksHit[i] = true;
+					else {
+						if (noBrickReflection)
+							blocksHit[i] = true;
+						else
+							solid[i]++;
+					}
+					
 					if (!noBrickReflection)
 						signX *= -1;
 				}

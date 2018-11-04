@@ -68,34 +68,32 @@ Mesh* Object2D::CreateCircle(std::string name, glm::vec3 leftBottomCorner, int n
 
 	std::vector<VertexFormat> vertices_circle;
 
-	vertices_circle.push_back(VertexFormat(corner, color)); // center
-	for (int i = 0; i < nr_triangles; i++) // add vertices equal to the number of triangles
+	vertices_circle.push_back(VertexFormat(corner, color));
+	for (int i = 0; i < nr_triangles; i++) 
 	{
-		float theta = 2.0f * M_PI * float(i) / float(nr_triangles); //get the current angle
+		float angle = 2.0f * M_PI * float(i) / float(nr_triangles);
 
-		float x = cosf(theta); //calculate the x component
-		float y = sinf(theta); //calculate the y component
+		float x = cosf(angle), y = sinf(angle);
 
 		vertices_circle.push_back(VertexFormat(corner + glm::vec3(x, y, 0), color));
 	}
 
-	std::vector<ushort> indices_circle;
+	std::vector<ushort> circle_indices;
 
-	// add (nr_triangles - 1) triangles
 	for (int i = 2; i <= nr_triangles; i++)
 	{
-		indices_circle.push_back(0);
-		indices_circle.push_back(i - 1);
-		indices_circle.push_back(i);
+		circle_indices.push_back(0);
+		circle_indices.push_back(i - 1);
+		circle_indices.push_back(i);
 	};
 
 	// add the last triangle
-	indices_circle.push_back(0);
-	indices_circle.push_back(nr_triangles);
-	indices_circle.push_back(1);
+	circle_indices.push_back(0);
+	circle_indices.push_back(nr_triangles);
+	circle_indices.push_back(1);
 
 	Mesh* circle = new Mesh(name);
 
-	circle->InitFromData(vertices_circle, indices_circle);
+	circle->InitFromData(vertices_circle, circle_indices);
 	return circle;
 }
